@@ -120,6 +120,11 @@ func (s *Server) BroadcastToRoom(namespace string, room, event string, args ...i
 	return false
 }
 
+// Emit emit to message given connectId, event & args to target connetion
+func (s *Server) Emit(connectId, event string, args ...interface{}) {
+	s.broadcast.Emit(connectId, event, args...)
+}
+
 // RoomLen gives number of connections in the room
 func (s *Server) RoomLen(namespace string, room string) int {
 	nspHandler := s.getNamespace(namespace, false)
