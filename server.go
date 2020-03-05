@@ -114,15 +114,16 @@ func (s *Server) ClearRoom(namespace string, room string) bool {
 func (s *Server) BroadcastToRoom(namespace string, room, event string, args ...interface{}) bool {
 	nspHandler := s.getNamespace(namespace, false)
 	if nspHandler != nil {
-		nspHandler.broadcast.Send(room, event, args...)
+		nspHandler.broadcast.SendToRoom(room, event, args...)
 		return true
 	}
 	return false
 }
 
-// Emit emit to message given connectId, event & args to target connetion
+// Emit emit to message given connectId, event & args to target connection
 func (s *Server) Emit(connectID, event string, args ...interface{}) {
-	s.broadcast.Emit(connectID, event, args...)
+	nspHandler := s.getNamespace("/", false)
+	nspHandler.broadcast.Emit(connectID, event, args...)
 }
 
 // RoomLen gives number of connections in the room
