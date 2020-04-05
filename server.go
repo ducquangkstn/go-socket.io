@@ -1,6 +1,7 @@
 package socketio
 
 import (
+	"errors"
 	"net/http"
 
 	engineio "github.com/googollee/go-socket.io/connection"
@@ -121,9 +122,13 @@ func (s *Server) BroadcastToRoom(namespace string, room, event string, args ...i
 }
 
 // Emit emit to message given connectId, event & args to target connection
-func (s *Server) Emit(connectID, event string, args ...interface{}) {
-	nspHandler := s.getNamespace("/", false)
-	nspHandler.broadcast.Emit(connectID, event, args...)
+func (s *Server) Emit(connectID, event string, args ...interface{}) error {
+	rootHandler, ok := s.handlers[""]
+	if !ok {
+		return errors.New("root ('/') doesn't have a namespace handler")
+	}
+	rootHandler.broadcast.Emit(connectID, event, args...)
+	return nil
 }
 
 // RoomLen gives number of connections in the room
@@ -165,7 +170,7 @@ func (s *Server) serveConn(c engineio.Conn) {
 }
 
 func (s *Server) getNamespace(nsp string, create bool) *namespaceHandler {
-	if nsp == "/" {
+	if nsp == baseNamespace {
 		nsp = ""
 	}
 	ret, ok := s.handlers[nsp]
